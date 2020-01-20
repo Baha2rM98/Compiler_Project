@@ -1,127 +1,178 @@
 package Lexer;
 
-import java.util.Hashtable;
+import java.util.*;
 
 public class Lexer {
-    public int line = 1;
-    private char peek = ' ';
-    private Hashtable<String, Word> words = new Hashtable<String, Word>();
-    private int i = 0;
-    private char[] sCopy;
+    public static int line = 1;
+    private char[] charList;
+    public static Hashtable<String, Word> hashtable = new Hashtable<>();
+    private static char lookAhead;
+    private static int counter = 0;
 
     public Lexer() {
-        reserve(new Word(Tag.TRUE, "true"));
-        reserve(new Word(Tag.FALSE, "false"));
-        reserve(new Word(Tag.SIN, "sin"));
-        reserve(new Word(Tag.COS, "cos"));
-        reserve(new Word(Tag.TAN, "tan"));
-        reserve(new Word(Tag.COT, "cot"));
-        reserve(new Word(Tag.log, "log"));
-        reserve(new Word(Tag.exp, "exp"));
-        reserve(new Word(Tag.E, "E"));
-        reserve(new Word(Tag.PI, "Pi"));
-        reserve(new Word(Tag.DIV, "div"));
-        reserve(new Word(Tag.MOD, "mod"));
+        res(new Word(Tag.TRUE, "true"));
+        res(new Word(Tag.FALSE, "false"));
+        res(new Word(Tag.SIN, "sin"));
+        res(new Word(Tag.COS, "cos"));
+        res(new Word(Tag.TAN, "tan"));
+        res(new Word(Tag.COT, "cot"));
+        res(new Word(Tag.log, "log"));
+        res(new Word(Tag.exp, "exp"));
+        res(new Word(Tag.e, "e"));
+        res(new Word(Tag.PI, "pi"));
+        res(new Word(Tag.DIV, "div"));
+        res(new Word(Tag.MOD, "mod"));
+        res(new Word(Tag.SQRT, "sqrt"));
+        res(new Word(Tag.SINH, "sinh"));
+        res(new Word(Tag.COSH, "cosh"));
+        res(new Word(Tag.TANH, "tanh"));
+        res(new Word(Tag.ARCsin, "Arcsin"));
+        res(new Word(Tag.ARCcos, "Arccos"));
+        res(new Word(Tag.Arctan, "Arctan"));
+        res(new Word(Tag.Arccot, "Arccot"));
     }
 
-    private void reserve(Word t) {
-        words.put(t.lexeme, t);
-    }
 
-    public Token scan() {
-        for (; i < sCopy.length; i++) {
-            peek = sCopy[i];
-            if (peek == ' ' || peek == '\t')
-                continue;
-            else if (peek == '\n') {
+    public Token forward() {
+        for (; counter < charList.length; counter++) {
+            lookAhead = charList[counter];
+            if (lookAhead == ' ') {
+            }
+            if (lookAhead == '\t') {
+            } else if (lookAhead == '\n') {
                 line++;
                 return new Token('\n');
             } else
                 break;
         }
 
-        if (Character.isDigit(peek)) {
-            double v = 0;
-            double w = 0.0;
-            do {
-                v = 10 * v + Character.digit(peek, 10);
-                peek = sCopy[++i];
-            } while (Character.isDigit(peek));
-            if (peek == '.') {
-                int x = 1;
-                while (Character.isDigit(peek = sCopy[++i])) {
-                    w = w + Character.digit(peek, 10) / Math.pow(10, x++);
+        if (Character.isDigit(lookAhead)) {
+            double integer = 0, floated = 0.0;
+            while (Character.isDigit(lookAhead)) {
+                integer = 10 * integer + Character.getNumericValue(lookAhead);
+                counter++;
+                lookAhead = charList[counter];
+            }
+            int decimalPoint = 0;
+            if (lookAhead == ',' || lookAhead == '.') {
+                counter++;
+                while (Character.isDigit(charList[counter])) {
+                    lookAhead = charList[counter];
+                    counter++;
+                    floated = 10 * floated + Character.getNumericValue(lookAhead);
+                    decimalPoint++;
                 }
             }
-            v += w;
-            return new Num(v);
+            integer += floated / Math.pow(10, decimalPoint);
+            return new Num(integer);
         }
-        if (Character.isLetter(peek)) {
-            StringBuilder b = new StringBuilder();
+        if (Character.isLetter(lookAhead)) {
+            StringBuilder stringBuilder = new StringBuilder();
             do {
-                b.append(peek);
-                peek = sCopy[++i];
-            } while (Character.isLetterOrDigit(peek));
-            String str = b.toString();
-            Word w = words.get(str);
+                stringBuilder.append(lookAhead);
+                lookAhead = charList[++counter];
+            } while (Character.isLetterOrDigit(lookAhead));
+            String str = stringBuilder.toString();
+            if (str.equals("x")) {
+                Word w = hashtable.get(str);
+                if (w != null)
+                    return w;
+                w = new Word(Tag.ID, str);
+                hashtable.put(str, w);
+                return w;
+            } else if (str.equals("y")) {
+                Word w = (Word) hashtable.get(str);
+                if (w != null)
+                    return w;
+                w = new Word(Tag.ID1, str);
+                hashtable.put(str, w);
+                return w;
+            }
+            Word w = hashtable.get(str);
             if (w != null)
                 return w;
             w = new Word(Tag.ID, str);
-            words.put(str, w);
+            hashtable.put(str, w);
             return w;
         }
-        Token t = new Token(peek);
-        i++;
+        Token t = new Token(lookAhead);
+        counter++;
         return t;
     }
 
-    public Token scan(char[] s) {
-        sCopy = new char[s.length];
-        System.arraycopy(s, 0, sCopy, 0, s.length);
 
-        for (; i < s.length; i++) {
-            peek = s[i];
-            if (peek == ' ' || peek == '\t')
+    private void res(Word t) {
+        hashtable.put(t.lexeme, t);
+    }
+
+
+    public Token forward(char[] chars) {
+        charList = new char[chars.length];
+        System.arraycopy(chars, 0, charList, 0, chars.length);
+        for (; counter < chars.length; counter++) {
+            lookAhead = chars[counter];
+            if (lookAhead == ' ' || lookAhead == '\t')
                 continue;
-            else if (peek == '\n')
+            else if (lookAhead == '\n')
                 line++;
             else
                 break;
         }
-
-        if (Character.isDigit(peek)) {
-            double v = 0;
-            double w = 0.0;
-            do {
-                v = 10 * v + Character.digit(peek, 10);
-                peek = s[++i];
-            } while (Character.isDigit(peek));
-            if (peek == '.') {
-                int x = 1;
-                while (Character.isDigit(peek = s[++i])) {
-                    w = w + Character.digit(peek, 10) / Math.pow(10, x++);
+        if (Character.isDigit(lookAhead)) {
+            double integer = 0.0, floated = 0.0;
+            while (Character.isDigit(lookAhead)) {
+                integer = 10 * integer + Character.getNumericValue(lookAhead);
+                counter++;
+                lookAhead = charList[counter];
+            }
+            int decimalPoint = 0;
+            if (lookAhead == ',' || lookAhead == '.') {
+                counter++;
+                while (Character.isDigit(charList[counter])) {
+                    lookAhead = charList[counter];
+                    counter++;
+                    floated = 10 * floated + Character.getNumericValue(lookAhead);
+                    decimalPoint++;
                 }
             }
-            v += w;
-            return new Num(v);
+            integer += floated / Math.pow(10, decimalPoint);
+            return new Num(integer);
         }
-        if (Character.isLetter(peek)) {
-            StringBuilder b = new StringBuilder();
+        if (Character.isLetter(lookAhead)) {
+            StringBuilder sb = new StringBuilder();
             do {
-                b.append(peek);
-                peek = sCopy[++i];
-            } while (Character.isLetterOrDigit(peek));
-            String str = b.toString();
-            Word w = words.get(str);
-            if (w != null)
+                sb.append(lookAhead);
+                lookAhead = charList[++counter];
+            } while (Character.isLetterOrDigit(lookAhead));
+            String s = sb.toString();
+            if (s.equals("x")) {
+                Word w = hashtable.get(s);
+                if (w != null) {
+                    return w;
+                }
+                w = new Word(Tag.ID, s);
+                hashtable.put(s, w);
                 return w;
-            w = new Word(Tag.ID, str);
-            words.put(str, w);
+            }
+            if (s.equals("y")) {
+                Word w = hashtable.get(s);
+                if (w != null) {
+                    return w;
+                }
+                w = new Word(Tag.ID1, s);
+                hashtable.put(s, w);
+                return w;
+            }
+            Word w = hashtable.get(s);
+            if (w != null) {
+                return w;
+            }
+            w = new Word(Tag.ID, s);
+            hashtable.put(s, w);
             return w;
         }
-        Token t = new Token(peek);
-        i++;
+        Token t = new Token(lookAhead);
+        counter++;
         return t;
-
     }
 }
