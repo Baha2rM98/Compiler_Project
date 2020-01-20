@@ -2,17 +2,17 @@ package Parser;
 import Lexer.*;
 import java.util.*;
 import java.io.*;
-import java.math.*;
-public class Parser {
+
+public class Parser extends Calculator{
     
     private static Token lookahead;
     private Lexer lex = new Lexer();
     private Stack stack = new Stack();
     
-    public Parser(String s) throws IOException{
+    public Parser(String s) {
         char[] sChar = new char[s.length() + 1];
-        for (int a = 0 ; a < s.length() ; a++)
-            sChar[a] = s.charAt(a);
+        for (int i = 0 ; i < s.length() ; i++)
+            sChar[i] = s.charAt(i);
         sChar[s.length()] = '\n';
         lookahead = lex.scan(sChar);
     }
@@ -66,7 +66,7 @@ public class Parser {
                 System.out.print("div ");
                 double b = ((Num)stack.pop()).value;
                 double a = ((Num)stack.pop()).value;
-                stack.push(new Num((int)(a / b)));             //taghsime sahih
+                stack.push(new Num((int)(a / b)));
             }
             else if (lookahead.tag == Tag.MOD){
                 match(new Token(Tag.MOD));
@@ -82,11 +82,11 @@ public class Parser {
     }
     
     private void pow() throws IOException{
-        trigonometrics();
+        trigonometric();
         while(true){
             if (lookahead.tag == '^'){
                 match(new Token('^'));
-//                trigonometrics();
+                trigonometric();
                 pow();
                 System.out.print("^ ");
                 double b = ((Num)stack.pop()).value;
@@ -98,15 +98,15 @@ public class Parser {
         }
     }
     
-    private void trigonometrics() throws IOException{
-//        DigitOrLetter();
+    private void trigonometric() throws IOException{
+        DigitOrLetter();
         while(true){
             if (lookahead.tag == Tag.SIN){
                 match(new Token(Tag.SIN));
                 match(new Token('('));
                 expr();
                 match(new Token(')'));
-//                DigitOrLetter();
+                DigitOrLetter();
                 System.out.print("sin ");
                 stack.push(new Num(Math.sin(((Num)stack.pop()).value)));
             }
@@ -115,7 +115,7 @@ public class Parser {
                 match(new Token('('));
                 expr();
                 match(new Token(')'));
-//                DigitOrLetter();
+                DigitOrLetter();
                 System.out.print("cos ");
                 stack.push(new Num(Math.cos(((Num)stack.pop()).value)));
             }
@@ -124,7 +124,7 @@ public class Parser {
                 match(new Token('('));
                 expr();
                 match(new Token(')'));
-//                DigitOrLetter();
+                DigitOrLetter();
                 System.out.print("tan ");
                 stack.push(new Num(Math.tan(((Num)stack.pop()).value)));
             }
@@ -133,7 +133,7 @@ public class Parser {
                 match(new Token('('));
                 expr();
                 match(new Token(')'));
-//                DigitOrLetter();
+                DigitOrLetter();
                 System.out.print("cot ");
                 stack.push(new Num(1.0 / Math.tan(((Num)stack.pop()).value)));
             }
@@ -156,7 +156,6 @@ public class Parser {
             match(lookahead);
         }
         else if (lookahead.tag == Tag.ID){
-//            compiler.Compiler.id_flag = true;
             stack.push(new Num(Word.value));
             System.out.print(Word.value + " ");
             match(lookahead);
@@ -168,11 +167,9 @@ public class Parser {
         }
         else
             return;
-//            System.out.println("test");
-//            throw new Error("Syntax Error on line: " + lex.line);
     }
     
-    private void match(Token t)throws IOException{
+    private void match(Token t) {
         if (lookahead.tag == t.tag )
             lookahead = lex.scan();
         else

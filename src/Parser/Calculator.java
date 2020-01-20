@@ -1,4 +1,7 @@
 package Parser;
 
-public class Calculator {
+abstract class Calculator {
+
+    Calculator() {
+    }
 }
