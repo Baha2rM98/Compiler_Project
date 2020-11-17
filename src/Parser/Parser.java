@@ -7,7 +7,6 @@ import java.util.*;
 public class Parser {
     private Lexer lex = new Lexer();
     private HashSet<Character> set = new HashSet<>();
-//    static int m = 0;
     private double initial_x = 0;
     private double initial_y = 0;
     private static int sizeM = 0;
@@ -243,9 +242,9 @@ public class Parser {
                 digitOrLetter();
                 if (lookAhead.tag == 257) {
                     throw new Error(" you can't create a valuable with a Integer and String in a row" +
-                            "in Line " + lex.line);
+                            "in Line " + Lexer.line);
                 } else {
-                    arrayList.add(String.valueOf(digit + " "));
+                    arrayList.add(digit + " ");
                     stack.push(forAhead);
                 }
                 return;
@@ -281,13 +280,13 @@ public class Parser {
             negativesBefore = "adadletter";
 
             stack.push(new Num(initial_x));
-            arrayList.add(String.valueOf(initial_x + " "));
+            arrayList.add(initial_x + " ");
             match(lookAhead);
         } else if (lookAhead.tag == Tag.ID1) {
             negativesBefore = "adadletter";
 
             stack.push(new Num(initial_y));
-            arrayList.add(String.valueOf(initial_y + " "));
+            arrayList.add(initial_y + " ");
             match(lookAhead);
         } else if (lookAhead.tag == '(') {
             match(new Token('('));
@@ -324,6 +323,7 @@ public class Parser {
                     if (s.charAt(j) == '(' || s.charAt(j) == ')' || s.charAt(j) == '+' || s.charAt(j) == '-'
                             || s.charAt(j) == '*' || s.charAt(j) == '/' || s.charAt(j) == '^' ||
                             Character.isDigit(s.charAt(j))) {
+                        continue;
                     }
                     i = j;
                 }
@@ -336,5 +336,14 @@ public class Parser {
         }
         sizeM = set.size();
         return valuable;
+    }
+
+    public void execute() throws Exception {
+        this.sumSub();
+        for (String s : Parser.arrayList) {
+            System.out.print(s + " ");
+        }
+        System.out.println();
+        System.out.println(((Num) this.stack.pop()).value);
     }
 }

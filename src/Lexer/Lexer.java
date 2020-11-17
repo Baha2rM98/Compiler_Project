@@ -26,10 +26,10 @@ public class Lexer {
         res(new Word(Tag.SINH, "sinh"));
         res(new Word(Tag.COSH, "cosh"));
         res(new Word(Tag.TANH, "tanh"));
-        res(new Word(Tag.ARCsin, "Arcsin"));
-        res(new Word(Tag.ARCcos, "Arccos"));
-        res(new Word(Tag.Arctan, "Arctan"));
-        res(new Word(Tag.Arccot, "Arccot"));
+        res(new Word(Tag.ARCsin, "arcsin"));
+        res(new Word(Tag.ARCcos, "arccos"));
+        res(new Word(Tag.Arctan, "arctan"));
+        res(new Word(Tag.Arccot, "arccot"));
     }
 
 
@@ -37,8 +37,10 @@ public class Lexer {
         for (; counter < charList.length; counter++) {
             lookAhead = charList[counter];
             if (lookAhead == ' ') {
+                continue;
             }
             if (lookAhead == '\t') {
+                continue;
             } else if (lookAhead == '\n') {
                 line++;
                 return new Token('\n');
