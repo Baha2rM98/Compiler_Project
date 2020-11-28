@@ -5,7 +5,7 @@ import java.util.*;
 public class Lexer {
     public static int line = 1;
     private char[] charList;
-    public static Hashtable<String, Word> hashtable = new Hashtable<>();
+    public static HashMap<String, Word> hashtable = new HashMap<>();
     private static char lookAhead;
     private static int counter = 0;
 
