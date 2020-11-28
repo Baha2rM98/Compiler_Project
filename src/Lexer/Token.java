@@ -1,9 +1,9 @@
 package Lexer;
 
 public class Token {
-    public int tag;
+    public int token;
 
-    public Token(int t) {
-        tag = t;
+    public Token(int token) {
+        this.token = token;
     }
 }

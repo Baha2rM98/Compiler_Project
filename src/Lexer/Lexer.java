@@ -10,56 +10,54 @@ public class Lexer {
     private static int counter = 0;
 
     public Lexer() {
-        res(new Word(Tag.TRUE, "true"));
-        res(new Word(Tag.FALSE, "false"));
-        res(new Word(Tag.SIN, "sin"));
-        res(new Word(Tag.COS, "cos"));
-        res(new Word(Tag.TAN, "tan"));
-        res(new Word(Tag.COT, "cot"));
-        res(new Word(Tag.log, "log"));
-        res(new Word(Tag.exp, "exp"));
-        res(new Word(Tag.e, "e"));
-        res(new Word(Tag.PI, "pi"));
-        res(new Word(Tag.DIV, "div"));
-        res(new Word(Tag.MOD, "mod"));
-        res(new Word(Tag.SQRT, "sqrt"));
-        res(new Word(Tag.SINH, "sinh"));
-        res(new Word(Tag.COSH, "cosh"));
-        res(new Word(Tag.TANH, "tanh"));
-        res(new Word(Tag.ARCsin, "arcsin"));
-        res(new Word(Tag.ARCcos, "arccos"));
-        res(new Word(Tag.Arctan, "arctan"));
-        res(new Word(Tag.Arccot, "arccot"));
+        initialHashTable(new Word(Flag.SIN, "sin"));
+        initialHashTable(new Word(Flag.COS, "cos"));
+        initialHashTable(new Word(Flag.TAN, "tan"));
+        initialHashTable(new Word(Flag.COT, "cot"));
+        initialHashTable(new Word(Flag.LOG, "log"));
+        initialHashTable(new Word(Flag.EXP, "exp"));
+        initialHashTable(new Word(Flag.E, "e"));
+        initialHashTable(new Word(Flag.PI, "pi"));
+        initialHashTable(new Word(Flag.DIV, "div"));
+        initialHashTable(new Word(Flag.MOD, "mod"));
+        initialHashTable(new Word(Flag.SQRT, "sqrt"));
+        initialHashTable(new Word(Flag.SQR, "sqr"));
+        initialHashTable(new Word(Flag.SINH, "sinh"));
+        initialHashTable(new Word(Flag.COSH, "cosh"));
+        initialHashTable(new Word(Flag.TANH, "tanh"));
+        initialHashTable(new Word(Flag.ARC_SIN, "arcsin"));
+        initialHashTable(new Word(Flag.ARC_COS, "arccos"));
+        initialHashTable(new Word(Flag.ARC_TAN, "arctan"));
+        initialHashTable(new Word(Flag.ARC_COT, "arccot"));
     }
 
-
     public Token forward() {
-        for (; counter < charList.length; counter++) {
-            lookAhead = charList[counter];
+        for (; counter < this.charList.length; counter++) {
+            lookAhead = this.charList[counter];
             if (lookAhead == ' ') {
                 continue;
             }
             if (lookAhead == '\t') {
                 continue;
-            } else if (lookAhead == '\n') {
+            }
+            if (lookAhead == '\n') {
                 line++;
                 return new Token('\n');
             } else
                 break;
         }
-
         if (Character.isDigit(lookAhead)) {
             double integer = 0, floated = 0.0;
             while (Character.isDigit(lookAhead)) {
                 integer = 10 * integer + Character.getNumericValue(lookAhead);
                 counter++;
-                lookAhead = charList[counter];
+                lookAhead = this.charList[counter];
             }
             int decimalPoint = 0;
             if (lookAhead == ',' || lookAhead == '.') {
                 counter++;
-                while (Character.isDigit(charList[counter])) {
-                    lookAhead = charList[counter];
+                while (Character.isDigit(this.charList[counter])) {
+                    lookAhead = this.charList[counter];
                     counter++;
                     floated = 10 * floated + Character.getNumericValue(lookAhead);
                     decimalPoint++;
@@ -72,50 +70,48 @@ public class Lexer {
             StringBuilder stringBuilder = new StringBuilder();
             do {
                 stringBuilder.append(lookAhead);
-                lookAhead = charList[++counter];
+                lookAhead = this.charList[++counter];
             } while (Character.isLetterOrDigit(lookAhead));
             String str = stringBuilder.toString();
             if (str.equals("x")) {
-                Word w = hashtable.get(str);
-                if (w != null)
-                    return w;
-                w = new Word(Tag.ID, str);
-                hashtable.put(str, w);
-                return w;
+                Word word = hashtable.get(str);
+                if (word != null)
+                    return word;
+                word = new Word(Flag.ID, str);
+                hashtable.put(str, word);
+                return word;
             } else if (str.equals("y")) {
-                Word w = (Word) hashtable.get(str);
-                if (w != null)
-                    return w;
-                w = new Word(Tag.ID1, str);
-                hashtable.put(str, w);
-                return w;
+                Word word = hashtable.get(str);
+                if (word != null)
+                    return word;
+                word = new Word(Flag.ID1, str);
+                hashtable.put(str, word);
+                return word;
             }
-            Word w = hashtable.get(str);
-            if (w != null)
-                return w;
-            w = new Word(Tag.ID, str);
-            hashtable.put(str, w);
-            return w;
+            Word word = hashtable.get(str);
+            if (word != null)
+                return word;
+            word = new Word(Flag.ID, str);
+            hashtable.put(str, word);
+            return word;
         }
-        Token t = new Token(lookAhead);
+        Token token = new Token(lookAhead);
         counter++;
-        return t;
+        return token;
     }
 
-
-    private void res(Word t) {
-        hashtable.put(t.lexeme, t);
+    private void initialHashTable(Word word) {
+        hashtable.put(word.lexeme, word);
     }
-
 
     public Token forward(char[] chars) {
-        charList = new char[chars.length];
-        System.arraycopy(chars, 0, charList, 0, chars.length);
+        this.charList = new char[chars.length];
+        System.arraycopy(chars, 0, this.charList, 0, chars.length);
         for (; counter < chars.length; counter++) {
             lookAhead = chars[counter];
             if (lookAhead == ' ' || lookAhead == '\t')
                 continue;
-            else if (lookAhead == '\n')
+            if (lookAhead == '\n')
                 line++;
             else
                 break;
@@ -125,13 +121,13 @@ public class Lexer {
             while (Character.isDigit(lookAhead)) {
                 integer = 10 * integer + Character.getNumericValue(lookAhead);
                 counter++;
-                lookAhead = charList[counter];
+                lookAhead = this.charList[counter];
             }
             int decimalPoint = 0;
             if (lookAhead == ',' || lookAhead == '.') {
                 counter++;
-                while (Character.isDigit(charList[counter])) {
-                    lookAhead = charList[counter];
+                while (Character.isDigit(this.charList[counter])) {
+                    lookAhead = this.charList[counter];
                     counter++;
                     floated = 10 * floated + Character.getNumericValue(lookAhead);
                     decimalPoint++;
@@ -144,37 +140,37 @@ public class Lexer {
             StringBuilder sb = new StringBuilder();
             do {
                 sb.append(lookAhead);
-                lookAhead = charList[++counter];
+                lookAhead = this.charList[++counter];
             } while (Character.isLetterOrDigit(lookAhead));
-            String s = sb.toString();
-            if (s.equals("x")) {
-                Word w = hashtable.get(s);
-                if (w != null) {
-                    return w;
+            String string = sb.toString();
+            if (string.equals("x")) {
+                Word word = hashtable.get(string);
+                if (word != null) {
+                    return word;
                 }
-                w = new Word(Tag.ID, s);
-                hashtable.put(s, w);
-                return w;
+                word = new Word(Flag.ID, string);
+                hashtable.put(string, word);
+                return word;
             }
-            if (s.equals("y")) {
-                Word w = hashtable.get(s);
-                if (w != null) {
-                    return w;
+            if (string.equals("y")) {
+                Word word = hashtable.get(string);
+                if (word != null) {
+                    return word;
                 }
-                w = new Word(Tag.ID1, s);
-                hashtable.put(s, w);
-                return w;
+                word = new Word(Flag.ID1, string);
+                hashtable.put(string, word);
+                return word;
             }
-            Word w = hashtable.get(s);
-            if (w != null) {
-                return w;
+            Word word = hashtable.get(string);
+            if (word != null) {
+                return word;
             }
-            w = new Word(Tag.ID, s);
-            hashtable.put(s, w);
-            return w;
+            word = new Word(Flag.ID, string);
+            hashtable.put(string, word);
+            return word;
         }
-        Token t = new Token(lookAhead);
+        Token token = new Token(lookAhead);
         counter++;
-        return t;
+        return token;
     }
 }
