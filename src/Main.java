@@ -6,30 +6,18 @@ import java.nio.file.Paths;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        int counter = 0;
         String sourceCode = pruneComments(getSource());
         String[] lines = sourceCode.split("\r\n|\r|\n");
-        while (counter != lines.length) {
-            new Parser(sourceCode).run();
-            counter++;
+        if (lines.length > 1) {
+            throw new Exception("Your source code must contains just one main line.");
         }
+        new Parser(sourceCode).run();
     }
 
-    /**
-     * Read the source code from program/program.txt
-     *
-     * @return String
-     * @Exception IOException
-     */
     private static String getSource() throws IOException {
         return new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "\\program\\program.txt")));
     }
 
-    /**
-     * Get the source code and read it line by line and prune the comments from it then return the pruned source code.
-     *
-     * @return String
-     */
     private static String pruneComments(String sourceCode) {
         StringBuilder stringBuilder = new StringBuilder(sourceCode);
         String temp;
