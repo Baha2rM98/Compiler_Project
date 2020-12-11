@@ -126,14 +126,15 @@ public class Lexer {
                 sb.append(lookAhead);
                 lookAhead = this.charList[++counter];
             } while (Character.isLetterOrDigit(lookAhead));
-            String string = sb.toString();
-            Word word = hashtable.get(string);
-            if (word != null) {
+            String str = sb.toString();
+            if (str.matches("^[a-zA-Z_$][a-zA-Z_$0-9]*$")) {
+                Word word = hashtable.get(str);
+                if (word != null)
+                    return word;
+                word = new Word(Flag.ID, str);
+                hashtable.put(str, word);
                 return word;
             }
-            word = new Word(Flag.ID, string);
-            hashtable.put(string, word);
-            return word;
         }
         Token token = new Token(lookAhead);
         counter++;
