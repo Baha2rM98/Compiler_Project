@@ -3,40 +3,30 @@ package Parser;
 import Lexer.*;
 
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Parser {
     private Lexer lex = new Lexer();
-    private HashSet<Character> set = new HashSet<>();
-    private double initial_x = 0;
-    private double initial_y = 0;
-    private static int sizeM = 0;
     private static double digit = 0;
-    private boolean valuable = false;
+    public Map<String, Double> vars = new HashMap<>();
     private boolean minus = false;
     private static ArrayList<String> sourceTokens = new ArrayList<>();
     private Stack stack = new Stack();
     private String negativeBefore = "unary";
+    private boolean hasVariable = false;
     private static Token lookAhead;
     private static Token forAhead;
 
     public Parser(String source) {
-        Scanner scn = new Scanner(System.in);
-        if (val(source)) {
-            if (sizeM == 1) {
-                initial_x = scn.nextDouble();
-            } else if (sizeM == 2) {
-                initial_x = scn.nextDouble();
-                initial_y = scn.nextDouble();
-            }
+        if (this.hasVariable(source)) {
+            this.hasVariable = true;
         }
-        char[] chars = new char[source.length() + 1];
-        for (int i = 0; i < source.length(); i++) {
-            chars[i] = source.charAt(i);
-        }
+        char[] chars = source.toCharArray();
         lookAhead = this.lex.forward(chars);
     }
 
-    public void sumSub() throws Exception {
+    private void sumSub() throws Exception {
         mulDiv();
         while (true) {
             if (lookAhead.token == '+') {
@@ -136,13 +126,6 @@ public class Parser {
                 match(new Token(')'));
                 sourceTokens.add("sin ");
                 this.stack.push(new Num(Math.sin(((Num) this.stack.pop()).value)));
-            } else if (lookAhead.token == Flag.SINH) {
-                match(new Token(Flag.SINH));
-                match(new Token('('));
-                sumSub();
-                match(new Token(')'));
-                sourceTokens.add("sinh ");
-                this.stack.push(new Num(Math.sinh((((Num) this.stack.pop()).value))));
             } else if (lookAhead.token == Flag.ARC_SIN) {
                 match(new Token(Flag.ARC_SIN));
                 match(new Token('('));
@@ -157,13 +140,6 @@ public class Parser {
                 match(new Token(')'));
                 sourceTokens.add("cos ");
                 this.stack.push(new Num(Math.cos((((Num) this.stack.pop()).value))));
-            } else if (lookAhead.token == Flag.COSH) {
-                match(new Token(Flag.COSH));
-                match(new Token('('));
-                sumSub();
-                match(new Token(')'));
-                sourceTokens.add("cosh ");
-                this.stack.push(new Num(Math.cosh((((Num) this.stack.pop()).value))));
             } else if (lookAhead.token == Flag.ARC_COS) {
                 match(new Token(Flag.ARC_COS));
                 match(new Token('('));
@@ -178,13 +154,6 @@ public class Parser {
                 match(new Token(')'));
                 sourceTokens.add("tan ");
                 this.stack.push(new Num(Math.tan((((Num) this.stack.pop()).value))));
-            } else if (lookAhead.token == Flag.TANH) {
-                match(new Token(Flag.TANH));
-                match(new Token('('));
-                sumSub();
-                match(new Token(')'));
-                sourceTokens.add("tanh ");
-                this.stack.push(new Num(Math.tanh((((Num) this.stack.pop()).value))));
             } else if (lookAhead.token == Flag.ARC_TAN) {
                 match(new Token(Flag.ARC_TAN));
                 match(new Token('('));
@@ -199,13 +168,6 @@ public class Parser {
                 match(new Token(')'));
                 sourceTokens.add("cot ");
                 this.stack.push(new Num(1.0 / Math.tan((((Num) this.stack.pop()).value))));
-            } else if (lookAhead.token == Flag.COTH) {
-                match(new Token(Flag.COTH));
-                match(new Token('('));
-                sumSub();
-                match(new Token(')'));
-                sourceTokens.add("coth");
-                this.stack.push(new Num(1.0 / Math.tanh((((Num) this.stack.pop()).value))));
             } else if (lookAhead.token == Flag.ARC_COT) {
                 match(new Token(Flag.ARC_TAN));
                 match(new Token('('));
@@ -253,9 +215,6 @@ public class Parser {
             } else if (lookAhead.token == Flag.ID) {
                 digitOrLetter();
                 return;
-            } else if (lookAhead.token == Flag.ID1) {
-                digitOrLetter();
-                return;
             } else if (lookAhead.token == '(') {
                 digitOrLetter();
                 return;
@@ -279,14 +238,11 @@ public class Parser {
             match(lookAhead);
         } else if (lookAhead.token == Flag.ID) {
             this.negativeBefore = "digitLetter";
-            this.stack.push(new Num(initial_x));
-            sourceTokens.add(initial_x + " ");
-            match(lookAhead);
-        } else if (lookAhead.token == Flag.ID1) {
-            this.negativeBefore = "digitLetter";
-            this.stack.push(new Num(initial_y));
-            sourceTokens.add(initial_y + " ");
-            match(lookAhead);
+            for (Map.Entry<String, Double> entry : this.vars.entrySet()) {
+                this.stack.push(new Num(entry.getValue()));
+                sourceTokens.add(entry.getValue() + " ");
+                match(lookAhead);
+            }
         } else if (lookAhead.token == '(') {
             match(new Token('('));
             sumSub();
@@ -303,39 +259,57 @@ public class Parser {
         }
     }
 
-    private boolean val(String s) {
-        for (int i = 0; i < s.length(); i++) {
-            StringBuilder sb = new StringBuilder();
-            if (Character.isLetter(s.charAt(i))) {
-                sb.delete(0, sb.length());
-                for (int j = 0; j < s.length(); j++) {
-                    if (s.charAt(j) == 'x') {
-                        this.set.add(s.charAt(j));
-                    }
-                    if (s.charAt(j) == 'y') {
-                        this.set.add(s.charAt(j));
-                    }
-                }
-                for (int j = i; j < s.length(); j++) {
-                    if (s.charAt(j) == '(' || s.charAt(j) == ')' || s.charAt(j) == '+' || s.charAt(j) == '-'
-                            || s.charAt(j) == '*' || s.charAt(j) == '/' || s.charAt(j) == '^' ||
-                            Character.isDigit(s.charAt(j))) {
-                        continue;
-                    }
-                    i = j;
-                }
-                String ss = sb.toString();
-                Word w = Lexer.hashtable.get(ss);
-                if (w == null) {
-                    this.valuable = true;
-                }
-            }
+    private boolean hasVariable(String source) {
+        ArrayList<String> varsList = new ArrayList<>();
+        Matcher matcher = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*").matcher(source);
+        while (matcher.find()) {
+            varsList.add(matcher.group());
         }
-        sizeM = this.set.size();
-        return this.valuable;
+        for (int i = 0; i < 1000000; i++) {
+            varsList.remove("sin");
+            varsList.remove("cos");
+            varsList.remove("tan");
+            varsList.remove("cot");
+            varsList.remove("log");
+            varsList.remove("exp");
+            varsList.remove("e");
+            varsList.remove("pi");
+            varsList.remove("div");
+            varsList.remove("mod");
+            varsList.remove("sqrt");
+            varsList.remove("sqr");
+            varsList.remove("arcsin");
+            varsList.remove("arccos");
+            varsList.remove("arctan");
+            varsList.remove("arccot");
+        }
+        Set<String> uniqueVar = new HashSet<>(varsList);
+        if (uniqueVar.size() > 0) {
+            for (String var : uniqueVar) {
+                this.vars.put(var, 0.0);
+            }
+            return true;
+        }
+        return false;
+    }
+
+    private boolean isVariableValid(String content) {
+        Pattern pattern = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");
+        Matcher matcher = pattern.matcher(content);
+        return matcher.find();
     }
 
     public void run() throws Exception {
+        if (this.hasVariable) {
+            Scanner scn = new Scanner(System.in);
+            for (Map.Entry<String, Double> entry : this.vars.entrySet()) {
+                if (!this.isVariableValid(entry.getKey())) {
+                    throw new Exception("Invalid variable name: " + entry.getKey() + "on line" + Lexer.line);
+                }
+                System.out.println("Enter value of " + entry.getKey() + " :");
+                this.vars.put(entry.getKey(), scn.nextDouble());
+            }
+        }
         this.sumSub();
         for (String token : Parser.sourceTokens) {
             System.out.print(token + " ");
