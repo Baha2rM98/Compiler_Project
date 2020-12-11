@@ -22,13 +22,14 @@ public class Lexer {
         initialHashTable(new Word(Flag.MOD, "mod"));
         initialHashTable(new Word(Flag.SQRT, "sqrt"));
         initialHashTable(new Word(Flag.SQR, "sqr"));
-        initialHashTable(new Word(Flag.SINH, "sinh"));
-        initialHashTable(new Word(Flag.COSH, "cosh"));
-        initialHashTable(new Word(Flag.TANH, "tanh"));
         initialHashTable(new Word(Flag.ARC_SIN, "arcsin"));
         initialHashTable(new Word(Flag.ARC_COS, "arccos"));
         initialHashTable(new Word(Flag.ARC_TAN, "arctan"));
         initialHashTable(new Word(Flag.ARC_COT, "arccot"));
+    }
+
+    private void initialHashTable(Word word) {
+        hashtable.put(word.lexeme, word);
     }
 
     public Token forward() {
@@ -40,7 +41,7 @@ public class Lexer {
             if (lookAhead == '\t') {
                 continue;
             }
-            if (lookAhead == '\n') {
+            if (lookAhead == '\n' || lookAhead == '\r') {
                 line++;
                 return new Token('\n');
             } else
@@ -73,35 +74,18 @@ public class Lexer {
                 lookAhead = this.charList[++counter];
             } while (Character.isLetterOrDigit(lookAhead));
             String str = stringBuilder.toString();
-            if (str.equals("x")) {
+            if (str.matches("^[a-zA-Z_$][a-zA-Z_$0-9]*$")) {
                 Word word = hashtable.get(str);
                 if (word != null)
                     return word;
                 word = new Word(Flag.ID, str);
                 hashtable.put(str, word);
                 return word;
-            } else if (str.equals("y")) {
-                Word word = hashtable.get(str);
-                if (word != null)
-                    return word;
-                word = new Word(Flag.ID1, str);
-                hashtable.put(str, word);
-                return word;
             }
-            Word word = hashtable.get(str);
-            if (word != null)
-                return word;
-            word = new Word(Flag.ID, str);
-            hashtable.put(str, word);
-            return word;
         }
         Token token = new Token(lookAhead);
         counter++;
         return token;
-    }
-
-    private void initialHashTable(Word word) {
-        hashtable.put(word.lexeme, word);
     }
 
     public Token forward(char[] chars) {
@@ -111,7 +95,7 @@ public class Lexer {
             lookAhead = chars[counter];
             if (lookAhead == ' ' || lookAhead == '\t')
                 continue;
-            if (lookAhead == '\n')
+            if (lookAhead == '\n' || lookAhead == '\r')
                 line++;
             else
                 break;
@@ -143,24 +127,6 @@ public class Lexer {
                 lookAhead = this.charList[++counter];
             } while (Character.isLetterOrDigit(lookAhead));
             String string = sb.toString();
-            if (string.equals("x")) {
-                Word word = hashtable.get(string);
-                if (word != null) {
-                    return word;
-                }
-                word = new Word(Flag.ID, string);
-                hashtable.put(string, word);
-                return word;
-            }
-            if (string.equals("y")) {
-                Word word = hashtable.get(string);
-                if (word != null) {
-                    return word;
-                }
-                word = new Word(Flag.ID1, string);
-                hashtable.put(string, word);
-                return word;
-            }
             Word word = hashtable.get(string);
             if (word != null) {
                 return word;
