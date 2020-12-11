@@ -26,7 +26,7 @@ public class Parser {
         lookAhead = this.lex.forward(chars);
     }
 
-    private void sumSub() throws Exception {
+    private void sumSub() {
         mulDiv();
         while (true) {
             if (lookAhead.token == '+') {
@@ -48,7 +48,7 @@ public class Parser {
         }
     }
 
-    private void mulDiv() throws Exception {
+    private void mulDiv() {
         pow();
         while (true) {
             if (lookAhead.token == '*') {
@@ -86,7 +86,7 @@ public class Parser {
         }
     }
 
-    private void pow() throws Exception {
+    private void pow() {
         function();
         while (true) {
             if (lookAhead.token == '-' && this.negativeBefore.equals("unary")) {
@@ -117,7 +117,7 @@ public class Parser {
         }
     }
 
-    private void function() throws Exception {
+    private void function() {
         while (true) {
             if (lookAhead.token == Flag.SIN) {
                 match(new Token(Flag.SIN));
@@ -206,7 +206,7 @@ public class Parser {
             } else if (lookAhead.token == Flag.NUM) {
                 digitOrLetter();
                 if (lookAhead.token == 257) {
-                    throw new Error(" you can't create a valuable with a Integer and String in a row" + "in Line " + Lexer.line);
+                    throw new Error("Invalid variable name on line: " + Lexer.line);
                 } else {
                     sourceTokens.add(digit + " ");
                     this.stack.push(forAhead);
@@ -225,7 +225,7 @@ public class Parser {
         }
     }
 
-    private void digitOrLetter() throws Exception {
+    private void digitOrLetter() {
         if (lookAhead.token == Flag.NUM) {
             this.negativeBefore = "digitLetter";
             forAhead = lookAhead;
@@ -251,11 +251,11 @@ public class Parser {
             throw new Error("Syntax Error on line: " + Lexer.line + ", expected token " + Character.getName(lookAhead.token));
     }
 
-    private void match(Token token) throws Exception {
+    private void match(Token token) {
         if (lookAhead.token == token.token) {
             lookAhead = this.lex.forward();
         } else {
-            throw new Exception(" Syntax Error on line: " + Lexer.line + ", expected token " + Character.getName(token.token));
+            throw new Error(" Syntax Error on line: " + Lexer.line + ", expected token " + Character.getName(token.token));
         }
     }
 
@@ -294,17 +294,15 @@ public class Parser {
     }
 
     private boolean isVariableValid(String content) {
-        Pattern pattern = Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$");
-        Matcher matcher = pattern.matcher(content);
-        return matcher.find();
+        return Pattern.compile("^[a-zA-Z_$][a-zA-Z_$0-9]*$").matcher(content).find();
     }
 
-    public void run() throws Exception {
+    public void run() {
         if (this.hasVariable) {
             Scanner scn = new Scanner(System.in);
             for (Map.Entry<String, Double> entry : this.vars.entrySet()) {
                 if (!this.isVariableValid(entry.getKey())) {
-                    throw new Exception("Invalid variable name: " + entry.getKey() + "on line" + Lexer.line);
+                    throw new Error("Invalid variable name: " + entry.getKey() + "on line" + Lexer.line);
                 }
                 System.out.println("Enter value of " + entry.getKey() + " :");
                 this.vars.put(entry.getKey(), scn.nextDouble());

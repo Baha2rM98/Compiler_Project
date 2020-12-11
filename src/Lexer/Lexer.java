@@ -35,12 +35,10 @@ public class Lexer {
     public Token forward() {
         for (; counter < this.charList.length; counter++) {
             lookAhead = this.charList[counter];
-            if (lookAhead == ' ') {
+            if (lookAhead == ' ' || lookAhead == '\t')
                 continue;
-            }
-            if (lookAhead == '\t') {
+            if (lookAhead == '_')
                 continue;
-            }
             if (lookAhead == '\n' || lookAhead == '\r') {
                 line++;
                 return new Token('\n');
@@ -94,6 +92,8 @@ public class Lexer {
         for (; counter < chars.length; counter++) {
             lookAhead = chars[counter];
             if (lookAhead == ' ' || lookAhead == '\t')
+                continue;
+            if (lookAhead == '_')
                 continue;
             if (lookAhead == '\n' || lookAhead == '\r')
                 line++;
