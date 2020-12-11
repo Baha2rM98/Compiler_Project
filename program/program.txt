@@ -1,9 +1,6 @@
-sqr(2) + sqrt(7)
-sin(pi/8) ^ 2 - sqrt(3)
--2^3
-cos(pi/5) ^ 2 - sqrt(7)
-// Comment
-log(2)
-4*arctan(1)
-sinh(6^(-100))
-{ Comment }
+// Some test cases here.
+{ sqrt(x) + log(x) }
+{ arcsin(z) *  sqr(-18) }
+{ (2 * 3) + (4 ^ 2) - (18 / 19) + (5 mod 4)}
+{ sin(pi/4) - (exp(Y) / 7) }
+{ tan(e) / (37 div 8) * (var ^ (-3)) }
