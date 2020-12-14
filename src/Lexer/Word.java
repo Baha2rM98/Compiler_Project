@@ -5,6 +5,6 @@ public class Word extends Token {
 
     Word(int key, String value) {
         super(key);
-        lexeme = value;
+        this.lexeme = value;
     }
 }
