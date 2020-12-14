@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class Parser {
     private Lexer lex = new Lexer();
     private static double digit = 0;
-    public Map<String, Double> vars = new HashMap<>();
+    private Map<String, Double> vars = new HashMap<>();
     private boolean minus = false;
     private static ArrayList<String> sourceTokens = new ArrayList<>();
     private Stack stack = new Stack();
