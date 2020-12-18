@@ -302,7 +302,7 @@ public class Parser {
             Scanner scn = new Scanner(System.in);
             for (Map.Entry<String, Double> entry : this.vars.entrySet()) {
                 if (!this.isVariableValid(entry.getKey())) {
-                    throw new Error("Invalid variable name: " + entry.getKey() + "on line" + Lexer.line);
+                    throw new Error("Invalid variable name: " + entry.getKey() + "on line " + Lexer.line);
                 }
                 System.out.println("Enter value of " + entry.getKey() + " :");
                 this.vars.put(entry.getKey(), scn.nextDouble());
