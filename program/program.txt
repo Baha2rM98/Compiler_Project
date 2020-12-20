@@ -1,6 +1,6 @@
 // Some test cases here.
 { sqrt(x) + log(x) }
 { arcsin(z) *  sqr(-18) }
-{ (2 * 3) + (4 ^ 2) - (18 / 19) + (5 mod 4)}
+{ (2 * 3) + (4 ^ 2) - (18 / 19) + (5 mod 4) }
 { sin(pi/4) - (exp(Y) / 7) }
 { tan(e) / (37 div 8) * (_var ^ (-3)) }
