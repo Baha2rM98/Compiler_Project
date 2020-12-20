@@ -1,21 +1,22 @@
 import Parser.Parser;
 
-import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
 public class Main {
     public static void main(String[] args) throws Exception {
-        String sourceCode = pruneComments(getSource());
+        if (args.length < 1) {
+            throw new Exception("Specific a file path.");
+        }
+        if (args.length > 1) {
+            throw new Exception("Specific a file path.");
+        }
+        String sourceCode = pruneComments(new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "\\" + args[0].replace("/", "\\")))));
         String[] lines = sourceCode.split("\r\n|\r|\n");
         if (lines.length > 1) {
             throw new Exception("Your source code must contains just one main line.");
         }
         new Parser(sourceCode).run();
-    }
-
-    private static String getSource() throws IOException {
-        return new String(Files.readAllBytes(Paths.get(System.getProperty("user.dir") + "\\program\\program.txt")));
     }
 
     private static String pruneComments(String sourceCode) {
