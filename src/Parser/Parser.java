@@ -8,10 +8,10 @@ import java.util.regex.Pattern;
 
 public class Parser {
     private Lexer lex = new Lexer();
-    private static double digit = 0;
+    private static double digit = 0.0;
     private Map<String, Double> vars = new HashMap<>();
     private boolean minus = false;
-    private static ArrayList<String> sourceTokens = new ArrayList<>();
+    private static ArrayList<String> postfixTokens = new ArrayList<>();
     private Stack stack = new Stack();
     private String negativeBefore = "unary";
     private boolean hasVariable = false;
@@ -32,14 +32,14 @@ public class Parser {
             if (lookAhead.token == '+') {
                 match(new Token('+'));
                 mulDiv();
-                sourceTokens.add("+ ");
+                postfixTokens.add("+ ");
                 double b = ((Num) this.stack.pop()).value;
                 double a = ((Num) this.stack.pop()).value;
                 this.stack.push(new Num(a + b));
             } else if (lookAhead.token == '-' && this.negativeBefore.equals("digitLetter")) {
                 match(new Token('-'));
                 mulDiv();
-                sourceTokens.add("- ");
+                postfixTokens.add("- ");
                 double b = ((Num) this.stack.pop()).value;
                 double a = ((Num) this.stack.pop()).value;
                 this.stack.push(new Num(a - b));
@@ -54,14 +54,14 @@ public class Parser {
             if (lookAhead.token == '*') {
                 match(new Token('*'));
                 pow();
-                sourceTokens.add("* ");
+                postfixTokens.add("* ");
                 double b = ((Num) this.stack.pop()).value;
                 double a = ((Num) this.stack.pop()).value;
                 this.stack.push(new Num(a * b));
             } else if (lookAhead.token == '/') {
                 match(new Token('/'));
                 pow();
-                sourceTokens.add("/ ");
+                postfixTokens.add("/ ");
                 double b = ((Num) this.stack.pop()).value;
                 double a = ((Num) this.stack.pop()).value;
                 this.stack.push(new Num(a / b));
@@ -69,7 +69,7 @@ public class Parser {
                 match(new Token(Flag.DIV));
                 pow();
 
-                sourceTokens.add("div ");
+                postfixTokens.add("div ");
                 double b = ((Num) this.stack.pop()).value;
                 double a = ((Num) this.stack.pop()).value;
                 this.stack.push(new Num((int) (a / b)));
@@ -77,7 +77,7 @@ public class Parser {
                 match(new Token(Flag.MOD));
                 pow();
 
-                sourceTokens.add("mod ");
+                postfixTokens.add("mod ");
                 double b = ((Num) this.stack.pop()).value;
                 double a = ((Num) this.stack.pop()).value;
                 this.stack.push(new Num(a % b));
@@ -100,18 +100,18 @@ public class Parser {
             if (lookAhead.token == '^') {
                 match(new Token('^'));
                 function();
-                sourceTokens.add("^ ");
+                postfixTokens.add("^ ");
                 double b = ((Num) this.stack.pop()).value;
                 double a = ((Num) this.stack.pop()).value;
                 this.stack.push(new Num(Math.pow(a, b)));
             } else if (lookAhead.token == Flag.E) {
                 match((new Token(Flag.E)));
                 this.stack.push(new Num(Math.E));
-                sourceTokens.add("e ");
+                postfixTokens.add("e ");
             } else if (lookAhead.token == Flag.PI) {
                 match((new Token(Flag.PI)));
                 this.stack.push(new Num(Math.PI));
-                sourceTokens.add("pi ");
+                postfixTokens.add("pi ");
             } else
                 return;
         }
@@ -124,91 +124,91 @@ public class Parser {
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("sin ");
+                postfixTokens.add("sin ");
                 this.stack.push(new Num(Math.sin(((Num) this.stack.pop()).value)));
             } else if (lookAhead.token == Flag.ARC_SIN) {
                 match(new Token(Flag.ARC_SIN));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("arcsin ");
+                postfixTokens.add("arcsin ");
                 this.stack.push(new Num(Math.asin(((Num) this.stack.pop()).value)));
             } else if (lookAhead.token == Flag.COS) {
                 match(new Token(Flag.COS));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("cos ");
+                postfixTokens.add("cos ");
                 this.stack.push(new Num(Math.cos((((Num) this.stack.pop()).value))));
             } else if (lookAhead.token == Flag.ARC_COS) {
                 match(new Token(Flag.ARC_COS));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("arccos ");
+                postfixTokens.add("arccos ");
                 this.stack.push(new Num(Math.acos(((Num) this.stack.pop()).value)));
             } else if (lookAhead.token == Flag.TAN) {
                 match(new Token(Flag.TAN));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("tan ");
+                postfixTokens.add("tan ");
                 this.stack.push(new Num(Math.tan((((Num) this.stack.pop()).value))));
             } else if (lookAhead.token == Flag.ARC_TAN) {
                 match(new Token(Flag.ARC_TAN));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("arctan ");
+                postfixTokens.add("arctan ");
                 this.stack.push(new Num(Math.atan(((Num) this.stack.pop()).value)));
             } else if (lookAhead.token == Flag.COT) {
                 match(new Token(Flag.COT));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("cot ");
+                postfixTokens.add("cot ");
                 this.stack.push(new Num(1.0 / Math.tan((((Num) this.stack.pop()).value))));
             } else if (lookAhead.token == Flag.ARC_COT) {
                 match(new Token(Flag.ARC_TAN));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("arccot ");
+                postfixTokens.add("arccot ");
                 this.stack.push(new Num(1.0 / Math.atan((((Num) this.stack.pop()).value))));
             } else if (lookAhead.token == Flag.SQRT) {
                 match(new Token(Flag.SQRT));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("sqrt ");
+                postfixTokens.add("sqrt ");
                 this.stack.push(new Num(Math.sqrt(((Num) this.stack.pop()).value)));
             } else if (lookAhead.token == Flag.SQR) {
                 match(new Token(Flag.SQR));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("sqr ");
+                postfixTokens.add("sqr ");
                 this.stack.push(new Num(Math.pow(((Num) this.stack.pop()).value, 2)));
             } else if (lookAhead.token == Flag.LOG) {
                 match(new Token(Flag.LOG));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("log ");
+                postfixTokens.add("log ");
                 this.stack.push(new Num(Math.log(((Num) this.stack.pop()).value) / Math.log(10)));
             } else if (lookAhead.token == Flag.EXP) {
                 match(new Token(Flag.EXP));
                 match(new Token('('));
                 sumSub();
                 match(new Token(')'));
-                sourceTokens.add("exp ");
+                postfixTokens.add("exp ");
                 this.stack.push(new Num(Math.exp(((Num) this.stack.pop()).value)));
             } else if (lookAhead.token == Flag.NUM) {
                 digitOrLetter();
                 if (lookAhead.token == 257) {
                     throw new Error("Invalid variable name on line: " + Lexer.line);
                 } else {
-                    sourceTokens.add(digit + " ");
+                    postfixTokens.add(digit + " ");
                     this.stack.push(forAhead);
                 }
                 return;
@@ -240,7 +240,7 @@ public class Parser {
             this.negativeBefore = "digitLetter";
             for (Map.Entry<String, Double> entry : this.vars.entrySet()) {
                 this.stack.push(new Num(entry.getValue()));
-                sourceTokens.add(entry.getValue() + " ");
+                postfixTokens.add(entry.getValue() + " ");
                 match(lookAhead);
             }
         } else if (lookAhead.token == '(') {
@@ -305,16 +305,14 @@ public class Parser {
                     throw new Error("Invalid variable name: " + entry.getKey() + "on line " + Lexer.line);
                 }
                 System.out.println("Enter value of " + entry.getKey() + " :");
-                this.vars.put(entry.getKey(), scn.nextDouble());
+                this.vars.put(entry.getKey(), Double.parseDouble(scn.next()));
             }
         }
         this.sumSub();
-        for (String token : Parser.sourceTokens) {
+        for (String token : Parser.postfixTokens) {
             System.out.print(token + " ");
         }
         System.out.println();
-        System.out.println(">>> " + ((Num) this.stack.pop()).value + "\n");
-        this.stack.clear();
-        sourceTokens.clear();
+        System.out.println(">>> " + ((Num) this.stack.pop()).value);
     }
 }
