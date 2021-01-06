@@ -6,4 +6,4 @@ It supports mathematical expressions such as: log (base 10), exp, sqrt, sqr, ele
 
 ### How to use:
 
-Run Main.java
+Run Main.class on terminal: `java Main source_code_file`
